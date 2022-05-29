@@ -57,6 +57,7 @@ module Application
 
       # Turning on the machine procedure
       puts "Loading".ljust(50, ".")
+      sleep 2
       puts "Self-check in progress".ljust(50, ".")
 
       if self_check # the system is ready to work
@@ -75,6 +76,7 @@ module Application
 
       # Turning off the machine procedure
       puts "Shutting down".ljust(50, ".")
+      sleep 2
       puts "Goodbye :-)".rjust(50, ".")
       puts "Press 'q' to quit"
     end
@@ -206,10 +208,13 @@ module Application
         puts "Preparing a drink: #{@chosen_drink} (200ml)".ljust(50, ".")
         # Inform user about status of coffee preparing;
         puts "Heating of water".ljust(50, '.')
+        sleep 2
         puts "Done".rjust(50, '.')
         puts "Grinding of beans".ljust(50, '.')
+        sleep 2
         puts "Done".rjust(50, '.')
         puts "Flowing of water through grinded coffee beans".ljust(50, '.')
+        sleep 3
         puts "Your coffee is ready! Take your cup, please.".rjust(50, ".")
         puts ""
         @water_tank -= 0.2 # water consumption per cup of coffee
