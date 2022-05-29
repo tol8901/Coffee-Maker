@@ -1,6 +1,6 @@
 module Application
   def self.run
-    coffee_maker = CoffeeMaker.new
+    coffee_maker = CoffeeMachine.new
     begin
       puts " Coffee-Maker Application ".center(50, '#')
       puts "a) Switch On Machine"
@@ -219,5 +219,57 @@ module Application
         puts ""
       end
     end
+  end
+
+  class CoffeeMachine < CoffeeMaker
+    def initialize
+      @is_turned_on = false # the state of the machine (On/Off)
+      @is_ready = false # the state of machine when it is ready to make a drink
+      @action = "" # required action to pass self-check
+
+      # amount of water in water tank (0..2 liters)
+      @min_water_tank_amount = 0 # liters
+      @max_water_tank_amount = 2.0 # liters
+
+      # amount of space in trash can (0..2 kg)
+      @min_trash_can_amount = 0 # kilograms
+      @max_trash_can_amount = 2.0 # kilograms
+
+      # A can for fresh beans (0..1 kg)
+      @min_beans_can_amount = 0 # kilograms
+      @max_beans_can_amount = 1 # kilograms
+    end
+
+    def select_drink
+      begin
+        @chosen_drink = ""
+        puts "Available drinks:"
+        puts "a) Americano"
+        puts "b) Espresso"
+        puts "c) Double Americano"
+        puts "d) Double Espresso"
+        puts "e) Latte"
+        puts "f) Cappuccino"
+        puts "q) Exit"
+        print "Select your drink, please: "
+        selected_drink = gets.chomp.downcase
+
+        # Validation of the user input
+        unless selected_drink.gsub(/[a-f,q]/, '').empty?
+          puts "Invalid input! Select one of the items in the menu, please."
+        end
+
+        case selected_drink[0]
+        when 'a' then return @chosen_drink = "Americano"
+        when 'b' then return @chosen_drink = "Espresso"
+        when 'c' then return @chosen_drink = "Double Americano"
+        when 'd' then return @chosen_drink = "Double Espresso"
+        when 'e' then return @chosen_drink = "Latte"
+        when 'f' then return @chosen_drink = "Cappuccino"
+        when 'q' then return @chosen_drink = "q"
+        end
+      end while selected_drink != 'q'
+    end
+
   end
 end
