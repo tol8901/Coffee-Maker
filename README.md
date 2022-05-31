@@ -8,20 +8,34 @@ In this application the user follows the next steps: choose a vendor of coffee m
 
 # User interaction scenario
 First of all, it is necessary to select a vendor of the coffee machine from the list, via printing a number. If an option was not selected, the app will use a default value (first from the list).
+
 ![1  Vendor-selection](https://user-images.githubusercontent.com/39213432/171286562-d64f7d60-9601-4437-bf76-ff9922406250.png)
+
 Then, after the selection of the vendor, the user goes to the main menu.
 First of all, it is necessary to turn on the machine.
-https://user-images.githubusercontent.com/39213432/171286565-7e035f8e-4b85-4f86-9ef3-44ccb8f935ed.png
+
+![2  Main-menu](https://user-images.githubusercontent.com/39213432/171286565-7e035f8e-4b85-4f86-9ef3-44ccb8f935ed.png)
+
 After system loading, it requires to prepare the coffee machine to work. The app executes consecutive checks: the state of coffee beans in the Beans Can, check of the state of the Trash Can (for already used grinded coffee beans), and the volume of water in the Water Tank. It is expected that the user enters required resources (coffee beans and water) or does required actions (to empty the Trash Can). It is recommended to enter values of resources to the correct limits, which are printed in the prompt.
-https://user-images.githubusercontent.com/39213432/171286567-4b21a1cc-b51e-492b-b8d8-d7c06ac91d8f.png
+
+![3  Initial-checks](https://user-images.githubusercontent.com/39213432/171286567-4b21a1cc-b51e-492b-b8d8-d7c06ac91d8f.png)
+
 Then the user needs to select a drink from the available drinks list.
-https://user-images.githubusercontent.com/39213432/171286571-e5dd04c9-5cab-4bba-9222-892a9d0b8b29.png
+
+![4  Available-drinks](https://user-images.githubusercontent.com/39213432/171286571-e5dd04c9-5cab-4bba-9222-892a9d0b8b29.png)
+
 Next, the user can see the stages of the drink preparation, and when the drink is ready. When the drink is ready, the main menu appears again. Where the user can make another drink, turn off the machine, and quit by shutting down the machine (and finish the application).
-https://user-images.githubusercontent.com/39213432/171286572-bc32d470-0957-4226-bb34-ccd6a14a941a.png
+
+![5  Preparing-a-drink](https://user-images.githubusercontent.com/39213432/171286572-bc32d470-0957-4226-bb34-ccd6a14a941a.png)
+
 When the user finished dealing with the coffee machine, it selects to shut down it. After some delay, the user will see that machine is turned off. After that user sees the main menu, where it is possible to turn on it again.
-https://user-images.githubusercontent.com/39213432/171286574-e6d33828-579c-42fe-aadf-ca1dc2f22b6d.png
+
+![6  Shutting down](https://user-images.githubusercontent.com/39213432/171286574-e6d33828-579c-42fe-aadf-ca1dc2f22b6d.png)
+
 If the user wants not only to shut down the machine but to finish working with the application, it is necessary to select the last menu item to quit. Then the application will be closed.
-https://user-images.githubusercontent.com/39213432/171286575-e9bfa3d5-10a7-4cf6-a9eb-0615d44217f0.png
+
+![7  Quit](https://user-images.githubusercontent.com/39213432/171286575-e9bfa3d5-10a7-4cf6-a9eb-0615d44217f0.png)
+
 
 # Additional details of application work:
 1) According to the logic of the working process of the coffee machine, it consumes resources (water and coffee beans) and produces except for coffee - the trash. When a lack of resources appeared, which are needed for the drink preparation, the application will require to enter them or clean the trash cup accordingly.
