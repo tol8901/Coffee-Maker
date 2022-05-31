@@ -8,7 +8,7 @@ In this application the user follows the next steps: choose a vendor of coffee m
 
 # User interaction scenario
 First of all, it is necessary to select a vendor of the coffee machine from the list, via printing a number. If an option was not selected, the app will use a default value (first from the list).
-https://user-images.githubusercontent.com/39213432/171286562-d64f7d60-9601-4437-bf76-ff9922406250.png
+![1  Vendor-selection](https://user-images.githubusercontent.com/39213432/171286562-d64f7d60-9601-4437-bf76-ff9922406250.png)
 Then, after the selection of the vendor, the user goes to the main menu.
 First of all, it is necessary to turn on the machine.
 https://user-images.githubusercontent.com/39213432/171286565-7e035f8e-4b85-4f86-9ef3-44ccb8f935ed.png
