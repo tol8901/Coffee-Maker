@@ -46,10 +46,10 @@ If the user wants not only to shut down the machine but to finish working with t
 6) If the user tries to turn on the already working machine, or turn off an already shut down machine, the system will notify the user about its incorrect actions.
 
 # Implementation details
-1 - Basic behavior of the application is based on the class CoffeeMaker. Where described actions from the main menu and implemented all necessary checks.
-2 - Class CoffeeMachine inherits the CoffeeMaker class and adds additional drinks to the "Available drinks" menu.
-3 - Three classes Delonghi, Philips, and Redmond represent three different vendors, and inherit the CoffeeMachine class. Also, these coffee machines have vendor-determined technical characteristics (max/min amount of water, max/min amount of coffee beans, the volume of the Trash Can, and time delays (loading and drink preparation).
-4 - The class Cup interacts with the appropriate running coffee-machine class, where it takes vendor-related cup volume, and switches to true when the drink is already prepared.
+1. Basic behavior of the application is based on the class CoffeeMaker. Where described actions from the main menu and implemented all necessary checks.
+2. Class CoffeeMachine inherits the CoffeeMaker class and adds additional drinks to the "Available drinks" menu.
+3. Three classes Delonghi, Philips, and Redmond represent three different vendors, and inherit the CoffeeMachine class. Also, these coffee machines have vendor-determined technical characteristics (max/min amount of water, max/min amount of coffee beans, the volume of the Trash Can, and time delays (loading and drink preparation).
+4. The class Cup interacts with the appropriate running coffee-machine class, where it takes vendor-related cup volume, and switches to true when the drink is already prepared.
 
 
 
