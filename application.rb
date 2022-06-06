@@ -2,17 +2,19 @@ module Application
   def self.run
     begin
       puts " Welcome to Coffee-Machine vendor menu ".center(50, '#')
-      # Manufacturers: DELONGHI, PHILIPS, REDMOND, SAECO.
-      manufacturers = ["DELONGHI", "PHILIPS", "REDMOND"]
-      puts "1) #{manufacturers[0]}"
-      puts "2) #{manufacturers[1]}"
-      puts "3) #{manufacturers[2]}"
-      puts "4) Skip, leave devault (#{manufacturers[0]})"
+      manufacturers = ["DELONGHI", "PHILIPS", "REDMOND"] # Available manufacturers
+      i = 0 # Loop counter - init number of the menu item list (manufacturers)
+      qty_of_manufacturers = manufacturers.size # How many manufacturers are available
+      manufacturers.each do |manufacturer| # Show a list of available manufacturers
+        puts "#{i + 1}) #{manufacturers[i]}"
+        i += 1
+      end
+      puts "s) Skip, leave default (#{manufacturers[0]})"
       print "Select a manufacturer, please: "
       selected_vendor = gets.chomp.downcase
 
       # Validation of user input
-      unless selected_vendor.gsub(/[1-4]/, '').empty?
+      unless selected_vendor.gsub(/[1-#{qty_of_manufacturers},s]/, '').empty?
         puts "Invalid input! Select one of the items in the menu, please."
         puts ""
       end
@@ -29,16 +31,17 @@ module Application
         coffee_maker = Redmond.new
         break
       end
-    end while selected_vendor != '4'
+    end while selected_vendor != 's'
 
     # User selected vendor confirmation
-    if selected_vendor == '4'
+    if selected_vendor == 's' # If user wants to skip and select default manufacturer - select the first one
       coffee_maker = Delonghi.new
       puts "Default vendor is: #{manufacturers[0]}".center(50, '-')
     else
       puts "Your selected vendor: #{manufacturers[selected_vendor[0].to_i - 1]}".center(50, '-')
     end
 
+    # Show the main menu
     begin
       puts " Coffee-Maker Application ".center(50, '#')
       puts "a) Switch On Machine"
