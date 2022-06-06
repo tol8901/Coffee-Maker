@@ -217,35 +217,6 @@ module Application
         make_coffee
     end
 
-    # Procedure of selecting a drink by user
-    def select_drink
-      begin
-        @chosen_drink = ""
-        puts "Available drinks:"
-        puts "a) Americano"
-        puts "b) Espresso"
-        puts "c) Double Americano"
-        puts "d) Double Espresso"
-        puts "q) Exit"
-        print "Select your drink, please: "
-        selected_drink = gets.chomp.downcase
-
-        # Validation of the user input
-        unless selected_drink.gsub(/[a-d,q]/, '').empty?
-          puts "Invalid input! Select one of the items in the menu, please."
-        end
-
-        case selected_drink[0]
-        when 'a' then return @chosen_drink = "Americano"
-        when 'b' then return @chosen_drink = "Espresso"
-        when 'c' then return @chosen_drink = "Double Americano"
-        when 'd' then return @chosen_drink = "Double Espresso"
-        when 'q' then return @chosen_drink = "q"
-        end
-
-      end while selected_drink != 'q'
-    end
-
     # Making coffee procedure
     def make_coffee
       # Add cup
@@ -294,6 +265,7 @@ module Application
       @max_beans_can_amount = 1 # kilograms
     end
 
+    # Procedure of selecting a drink by user
     def select_drink
       begin
         @chosen_drink = ""
