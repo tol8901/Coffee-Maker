@@ -17,6 +17,7 @@ module Application
         puts ""
       end
 
+      # Factory method
       case selected_vendor[0]
       when '1'
         coffee_maker = Delonghi.new
@@ -130,13 +131,11 @@ module Application
       @beans_can = 0 if @beans_can.nil?
 
       # Check state of the machine (ON/OFF)
-      if @is_turned_on # The machine is turned on
+      if @is_turned_on && self_check # The machine is turned on
         user_select_drink
       else # The machine is turned off
         puts " First of all, Switch On the Machine ".center(50, "!")
       end
-
-      self_check
     end
 
     private
@@ -249,7 +248,7 @@ module Application
       # Add cup
       cup = Cup.new
       cup.volume = @cup_volume
-
+      cup.is_full = false
       if @chosen_drink != 'q' # switch_on procedure was successful
         puts "Preparing a drink: #{@chosen_drink} (#{cup.volume} ml)".ljust(50, ".")
         # Inform user about status of coffee preparing;
