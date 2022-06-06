@@ -263,36 +263,41 @@ module Application
       # A can for fresh beans (0..1 kg)
       @min_beans_can_amount = 0 # kilograms
       @max_beans_can_amount = 1 # kilograms
+
     end
 
     # Procedure of selecting a drink by user
     def select_drink
+      # Available drinks list
+      @available_drinks = {
+        a: 'Americano',
+        b: 'Espresso',
+        c: 'Double Americano',
+        d: 'Double Espresso',
+        e: 'Latte',
+        f: 'Cappuccino',
+      }
+
       begin
         @chosen_drink = ""
         puts "Available drinks:"
-        puts "a) Americano"
-        puts "b) Espresso"
-        puts "c) Double Americano"
-        puts "d) Double Espresso"
-        puts "e) Latte"
-        puts "f) Cappuccino"
-        puts "q) Exit"
+        @available_drinks.each do |key_drink, name_drink|
+          puts "#{key_drink}) #{name_drink}"
+        end
         print "Select your drink, please: "
         selected_drink = gets.chomp.downcase
 
         # Validation of the user input
-        unless selected_drink.gsub(/[a-f,q]/, '').empty?
+        unless selected_drink.gsub(/[#{@available_drinks.keys}]/, '').empty?
           puts "Invalid input! Select one of the items in the menu, please."
         end
-
         case selected_drink[0]
-        when 'a' then return @chosen_drink = "Americano"
-        when 'b' then return @chosen_drink = "Espresso"
-        when 'c' then return @chosen_drink = "Double Americano"
-        when 'd' then return @chosen_drink = "Double Espresso"
-        when 'e' then return @chosen_drink = "Latte"
-        when 'f' then return @chosen_drink = "Cappuccino"
-        when 'q' then return @chosen_drink = "q"
+        when 'a' then return @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
+        when 'b' then return @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
+        when 'c' then return @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
+        when 'd' then return @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
+        when 'e' then return @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
+        when 'f' then return @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
         end
       end while selected_drink != 'q'
     end
