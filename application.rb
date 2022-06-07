@@ -66,22 +66,40 @@ module Application
   end
 
   class CoffeeMaker
+    attr_accessor :state_object
+    # Amount of water in a water tank (liters)
+    MIN_WATER_TANK_AMOUNT = 0 # liters
+    MAX_WATER_TANK_AMOUNT = 2 # liters
+    # Amount of space in trash can (kilograms)
+    MIN_TRASH_CAN_AMOUNT = 0 # kg
+    MAX_TRASH_CAN_AMOUNT = 2 # kg
+    # Amount of can for fresh beans (kilograms)
+    MIN_BEANS_CAN_AMOUNT = 0 # kg
+    MAX_BEANS_CAN_AMOUNT = 1 # kg
+    # Time of loading (seconds)
+    DELAY_LOADING = 3 # sec
+
     def initialize
-      @is_turned_on = false # the state of the machine (On/Off)
       @is_ready = false # the state of machine when it is ready to make a drink
-      @action = "" # required action to pass self-check
 
-      # amount of water in water tank (0..2 liters)
-      @min_water_tank_amount = 0 # liters
-      @max_water_tank_amount = 2.0 # liters
+      # Amount of water in water tank (0..2 liters)
+      @min_water_tank_amount = self.class::MIN_WATER_TANK_AMOUNT # liters
+      @max_water_tank_amount = self.class::MAX_WATER_TANK_AMOUNT # liters
 
-      # amount of space in trash can (0..2 kg)
-      @min_trash_can_amount = 0 # kilograms
-      @max_trash_can_amount = 2.0 # kilograms
+      # Amount of space in trash can (kilograms)
+      @min_trash_can_amount = self.class::MIN_TRASH_CAN_AMOUNT # kg
+      @max_trash_can_amount = self.class::MAX_TRASH_CAN_AMOUNT # kg
 
-      # A can for fresh beans (0..1 kg)
-      @min_beans_can_amount = 0 # kilograms
-      @max_beans_can_amount = 1 # kilograms
+      # Amount of can for fresh beans (kilograms)
+      @min_beans_can_amount = self.class::MIN_BEANS_CAN_AMOUNT # kilograms
+      @max_beans_can_amount = self.class::MAX_BEANS_CAN_AMOUNT # kilograms
+
+      # Time of loading
+      @loading_delay = self.class::DELAY_LOADING
+
+      # The volume of the cup for drink, ml
+      @cup_volume = 200 # ml
+      self.state_object = StateMachineOnOff.new
     end
 
     def switch_on
@@ -89,43 +107,13 @@ module Application
       @trash_can = 0 if @trash_can.nil?
       @beans_can = 0 if @beans_can.nil?
 
-      # The volume of the cup for drink, ml
-      @cup_volume = 200
-
-      # Time of loading
-      @loading_delay = 3
-
-      # Check state of the machine
-      if @is_turned_on # Turning on already working machine
-        return puts "The machine is already turned on"
-      else
-        @is_turned_on = true
-      end
-
-      # Turning on the machine procedure
-      puts "Loading".ljust(50, ".")
-      sleep @loading_delay
-      puts "Self-check in progress".ljust(50, ".")
-
-      if self_check # the system is ready to work
-        select_drink
-        make_coffee
-      end
+      # Turning On the machine
+      self.state_object.turn_on
     end
 
     def switch_off
-      # Check the state of the machine (ON/OFF)
-      if @is_turned_on # Turning off already not working machine
-        @is_turned_on = false
-      else
-        return puts "The machine is already turned off"
-      end
-
-      # Turning off the machine procedure
-      puts "Shutting down".ljust(50, ".")
-      sleep @loading_delay
-      puts "Goodbye :-)".rjust(50, ".")
-      puts "Press 'q' to quit"
+      # Turning Off the machine
+      self.state_object.turn_off
     end
 
     def next_cup
@@ -134,7 +122,7 @@ module Application
       @beans_can = 0 if @beans_can.nil?
 
       # Check state of the machine (ON/OFF)
-      if @is_turned_on && self_check # The machine is turned on
+      if self.state_object.is_on? && self_check # The machine is turned on
         user_select_drink
       else # The machine is turned off
         puts " First of all, Switch On the Machine ".center(50, "!")
@@ -145,6 +133,7 @@ module Application
 
     # Self-check sequence
     def self_check
+      puts "Self-check in progress".ljust(50, ".")
       if check_beans_level || check_trash_level || check_water_level
         true
       end
@@ -175,7 +164,7 @@ module Application
     end
 
     def check_trash_level
-      # Check trash can procedure
+      # Check Trash Can procedure
       if @trash_can >= @max_trash_can_amount # The trash can is full - need to clean
         puts "Clean the trash can, please!".center(50, '!')
         print "Are you already empty the trash can? (Y/N): "
@@ -217,56 +206,6 @@ module Application
         make_coffee
     end
 
-    # Making coffee procedure
-    def make_coffee
-      # Add cup
-      cup = Cup.new
-      cup.volume = @cup_volume
-      cup.is_full = false
-      if @chosen_drink != 'q' # switch_on procedure was successful
-        puts "Preparing a drink: #{@chosen_drink} (#{cup.volume} ml)".ljust(50, ".")
-        # Inform user about status of coffee preparing;
-        puts "Heating of water".ljust(50, '.')
-        sleep 1
-        puts "Done".rjust(50, '.')
-        puts "Grinding of beans".ljust(50, '.')
-        sleep 1
-        puts "Done".rjust(50, '.')
-        puts "Flowing of water through grinded coffee beans".ljust(50, '.')
-        sleep 1
-        cup.is_full = true
-        puts "Your coffee is ready! Take your cup, please.".rjust(50, ".")
-        puts ""
-        @water_tank -= (@cup_volume / 100) # water consumption per cup of coffee
-        @trash_can += 1 # trash generation from one cup of coffee
-        @beans_can -= 0.5 # beans consumption per one cup of coffee
-      elsif @chosen_drink == 'q'
-        puts ""
-      end
-    end
-  end
-
-  class CoffeeMachine < CoffeeMaker
-    def initialize
-      @is_turned_on = false # the state of the machine (On/Off)
-      @is_ready = false # the state of machine when it is ready to make a drink
-      @action = "" # required action to pass self-check
-
-      # Amount of water in water tank (0..2 liters)
-      @min_water_tank_amount = 0 # liters
-      @max_water_tank_amount = 2.0 # liters
-
-      # Amount of space in trash can (0..2 kg)
-      @min_trash_can_amount = 0 # kilograms
-      @max_trash_can_amount = 2.0 # kilograms
-
-      # A can for fresh beans (0..1 kg)
-      @min_beans_can_amount = 0 # kilograms
-      @max_beans_can_amount = 1 # kilograms
-
-    end
-
-    # Procedure of selecting a drink by user
     def select_drink
       # Available drinks list
       @available_drinks = {
@@ -291,154 +230,80 @@ module Application
         unless selected_drink.gsub(/[#{@available_drinks.keys}]/, '').empty?
           puts "Invalid input! Select one of the items in the menu, please."
         end
-        case selected_drink[0]
-        when 'a' then return @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
-        when 'b' then return @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
-        when 'c' then return @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
-        when 'd' then return @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
-        when 'e' then return @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
-        when 'f' then return @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
-        end
+
+        @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
+        break if @chosen_drink != ''
       end while selected_drink != 'q'
     end
 
-  end
+    def make_coffee
+    # Making coffee procedure
+      # Add cup
+      cup = Cup.new
 
-  class Delonghi < CoffeeMachine
-    def initialize
-      # Amount of water in water tank (0..2 liters)
-      @min_water_tank_amount = 0 # liters
-      @max_water_tank_amount = 3.0 # liters
-
-      # Amount of space in trash can (0..2 kg)
-      @min_trash_can_amount = 0 # kilograms
-      @max_trash_can_amount = 3.0 # kilograms
-
-      # A can for fresh beans (0..1 kg)
-      @min_beans_can_amount = 0.2 # kilograms
-      @max_beans_can_amount = 1.5 # kilograms
-    end
-
-    def switch_on
-      @water_tank = 0 if @water_tank.nil?
-      @trash_can = 0 if @trash_can.nil?
-      @beans_can = 0 if @beans_can.nil?
-
-      # The volume of the cup for drink, ml
-      @cup_volume = 250
-
-      # Time of loading
-      @loading_delay = 5
-
-      # Check state of the machine
-      if @is_turned_on # Turning on already working machine
-        return puts "The machine is already turned on"
-      else
-        @is_turned_on = true
-      end
-
-      # Turning on the machine procedure
-      puts "Loading".ljust(50, ".")
-      sleep @loading_delay
-      puts "Self-check in progress".ljust(50, ".")
-
-      if self_check # the system is ready to work
-        select_drink
-        make_coffee
+      if @chosen_drink != 'q' # switch_on procedure was successful
+        puts "Preparing a drink: #{@chosen_drink} (#{@cup_volume} ml)".ljust(50, ".")
+        # Inform user about status of coffee preparing;
+        puts "Heating of water".ljust(50, '.')
+        sleep 1
+        puts "Done".rjust(50, '.')
+        puts "Grinding of beans".ljust(50, '.')
+        sleep 1
+        puts "Done".rjust(50, '.')
+        puts "Flowing of water through grinded coffee beans".ljust(50, '.')
+        sleep 1
+        cup.is_full = true
+        puts "Your coffee is ready! Take your cup, please.".rjust(50, ".")
+        puts ""
+        @water_tank -= (@cup_volume / 100) # water consumption per cup of coffee
+        @trash_can += 1 # trash generation from one cup of coffee
+        @beans_can -= 0.5 # beans consumption per one cup of coffee
+      elsif @chosen_drink == 'q'
+        puts ""
       end
     end
   end
 
-  class Philips < CoffeeMachine
-    def initialize
-      # Amount of water in water tank (0.5..4 liters)
-      @min_water_tank_amount = 0.5 # liters
-      @max_water_tank_amount = 4.0 # liters
-
-      # Amount of space in trash can (0.1..4 kg)
-      @min_trash_can_amount = 0 # kilograms
-      @max_trash_can_amount = 4.0 # kilograms
-
-      # A can for fresh beans (0.2..3 kg)
-      @min_beans_can_amount = 0 # kilograms
-      @max_beans_can_amount = 3 # kilograms
-    end
-
-    def switch_on
-      @water_tank = 0 if @water_tank.nil?
-      @trash_can = 0 if @trash_can.nil?
-      @beans_can = 0 if @beans_can.nil?
-
-      # The volume of the cup for drink, ml
-      @cup_volume = 300
-
-      # Time of loading
-      @loading_delay = 2
-
-      # Check state of the machine
-      if @is_turned_on # Turning on already working machine
-        return puts "The machine is already turned on"
-      else
-        @is_turned_on = true
-      end
-
-      # Turning on the machine procedure
-      puts "Loading".ljust(50, ".")
-      sleep @loading_delay
-      puts "Self-check in progress".ljust(50, ".")
-
-      if self_check # the system is ready to work
-        select_drink
-        make_coffee
-      end
-    end
-
+  class Delonghi < CoffeeMaker
+    # Amount of water in a water tank (liters)
+    MIN_WATER_TANK_AMOUNT = 0 # liters
+    MAX_WATER_TANK_AMOUNT = 1.5 # liters
+    # Amount of space in trash can (kilograms)
+    MIN_TRASH_CAN_AMOUNT = 0 # kg
+    MAX_TRASH_CAN_AMOUNT = 2 # kg
+    # Amount of can for fresh beans (kilograms)
+    MIN_BEANS_CAN_AMOUNT = 0 # kg
+    MAX_BEANS_CAN_AMOUNT = 1 # kg
+    # Time of loading (seconds)
+    DELAY_LOADING = 1 # sec
   end
 
-  class Redmond < CoffeeMachine
-    def initialize
-      # Amount of water in water tank (0..5 liters)
-      @min_water_tank_amount = 0 # liters
-      @max_water_tank_amount = 5.0 # liters
+  class Philips < CoffeeMaker
+    # Amount of water in a water tank (liters)
+    MIN_WATER_TANK_AMOUNT = 0 # liters
+    MAX_WATER_TANK_AMOUNT = 2 # liters
+    # Amount of space in trash can (kilograms)
+    MIN_TRASH_CAN_AMOUNT = 0 # kg
+    MAX_TRASH_CAN_AMOUNT = 3 # kg
+    # Amount of can for fresh beans (kilograms)
+    MIN_BEANS_CAN_AMOUNT = 0 # kg
+    MAX_BEANS_CAN_AMOUNT = 2 # kg
+    # Time of loading (seconds)
+    DELAY_LOADING = 2 # sec
+  end
 
-      # Amount of space in trash can (0..5 kg)
-      @min_trash_can_amount = 0 # kilograms
-      @max_trash_can_amount = 5.0 # kilograms
-
-      # A can for fresh beans (0.2..5 kg)
-      @min_beans_can_amount = 0.2 # kilograms
-      @max_beans_can_amount = 5 # kilograms
-    end
-
-    def switch_on
-      @water_tank = 0 if @water_tank.nil?
-      @trash_can = 0 if @trash_can.nil?
-      @beans_can = 0 if @beans_can.nil?
-
-      # The volume of the cup for drink, ml
-      @cup_volume = 250
-
-      # Time of loading
-      @loading_delay = 5
-
-      # Check state of the machine
-      if @is_turned_on # Turning on already working machine
-        return puts "The machine is already turned on"
-      else
-        @is_turned_on = true
-      end
-
-      # Turning on the machine procedure
-      puts "Loading".ljust(50, ".")
-      sleep @loading_delay
-      puts "Self-check in progress".ljust(50, ".")
-
-      if self_check # the system is ready to work
-        select_drink
-        make_coffee
-      end
-    end
-
+  class Redmond < CoffeeMaker
+    # Amount of water in a water tank (liters)
+    MIN_WATER_TANK_AMOUNT = 0 # liters
+    MAX_WATER_TANK_AMOUNT = 3 # liters
+    # Amount of space in trash can (kilograms)
+    MIN_TRASH_CAN_AMOUNT = 0 # kg
+    MAX_TRASH_CAN_AMOUNT = 4 # kg
+    # Amount of can for fresh beans (kilograms)
+    MIN_BEANS_CAN_AMOUNT = 0 # kg
+    MAX_BEANS_CAN_AMOUNT = 3 # kg
+    # Time of loading (seconds)
+    DELAY_LOADING = 3 # sec
   end
 
   class Cup
@@ -446,14 +311,89 @@ module Application
     def initialize
       @is_full = false
       @volume = 0
+      @size = 0.2 # liters
     end
 
-    def cup_volume(volume=200)
+    def cup_volume(volume)
       @volume = volume
     end
 
-    def fill_cup(is_full=false)
+    def show_cup_volume
+      @volume
+    end
+
+    def fill_cup(is_full)
       @is_full = is_full
     end
+  end
+
+  class StateMachineOnOff
+    # This class is about store and change the state of an object
+    # States: on, off
+    # State events: turn_on, turn_off
+    # Transitions: from on to off, from off to on
+    def initialize
+      @state = 'OFF'
+    end
+
+    # Display current state
+    def state?
+      @state
+    end
+
+    # Check the state: is it On?
+    def is_on?
+      @state == 'ON'
+    end
+
+    # Check the state: is it Off?
+    def is_off?
+      @state == 'OFF'
+    end
+
+    # Event: to turn On
+    def turn_on
+      if is_on? # If the machine is already in On state
+        # The state doesn't change, still in On state
+        puts "The state is already ON. No state changes".center(50, "!")
+      else # If the state is Off
+        off_to_on # Run transition from state Off to On
+        # Turning on the machine procedure
+        puts "Loading".ljust(50, ".")
+        sleep 1
+
+      end
+    end
+
+    # Event: to turn off
+    def turn_off
+      if is_off? # If the machine is already in Off state
+        # The state doesn't change, still in Off sate
+        puts "The state is already OFF. No state changes".center(50, "!")
+      else # If the state is On
+        on_to_off # Run transition from state On to Off
+      end
+    end
+
+    # Transition: from Off to On
+    def off_to_on
+      # State Off -> On
+      @state = 'ON'
+      puts "Changed state to On".center(50, "~")
+    end
+
+    # Transition: from On to Off
+    def on_to_off
+      # State On -> Off
+      @state = 'OFF'
+      puts "Changed state to Off".center(50, "~")
+      # Turning off the machine procedure
+      puts "Shutting down".ljust(50, ".")
+      sleep 1
+      puts "Goodbye :-)".rjust(50, ".")
+      puts "Press 'q' to quit"
+    end
+
+    private :off_to_on, :on_to_off
   end
 end
