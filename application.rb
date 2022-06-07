@@ -343,8 +343,6 @@ module Application
   end
 
   class Cup
-    attr_accessor :volume
-
     def initialize
       @volume = 0
     end
