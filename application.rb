@@ -66,7 +66,7 @@ module Application
   end
 
   class CoffeeMaker
-    attr_accessor :state_object
+    attr_accessor :state_object, :water_tank, :trash_can, :beans_can
     # Amount of water in a water tank (liters)
     MIN_WATER_TANK_AMOUNT = 0 # liters
     MAX_WATER_TANK_AMOUNT = 2 # liters
@@ -99,14 +99,18 @@ module Application
 
       # The volume of the cup for drink, ml
       @cup_volume = 200 # ml
+
+      # Object to store a state of the machine
       self.state_object = StateMachineOnOff.new
+
+      # Initial values of the Water Tank, Trash Can and Beans Can
+      # (when all of them are empty)
+      self.water_tank = self.class::MIN_WATER_TANK_AMOUNT
+      self.trash_can = self.class::MIN_TRASH_CAN_AMOUNT
+      self.beans_can = self.class::MIN_BEANS_CAN_AMOUNT
     end
 
     def switch_on
-      @water_tank = 0 if @water_tank.nil?
-      @trash_can = 0 if @trash_can.nil?
-      @beans_can = 0 if @beans_can.nil?
-
       # Turning On the machine
       self.state_object.turn_on
     end
@@ -117,10 +121,6 @@ module Application
     end
 
     def next_cup
-      @water_tank = 0 if @water_tank.nil?
-      @trash_can = 0 if @trash_can.nil?
-      @beans_can = 0 if @beans_can.nil?
-
       # Check state of the machine (ON/OFF)
       if self.state_object.is_on? && self_check # The machine is turned on
         user_select_drink
@@ -141,22 +141,22 @@ module Application
 
     def check_water_level
       # Checking a water tank state procedure
-      if @water_tank <= @min_water_tank_amount
+      if self.water_tank <= @min_water_tank_amount
         @is_ready = false
         puts "Fill a water tank, please".center(50, '!')
         print "Enter amount of water, please (#{@min_water_tank_amount} - #{@max_water_tank_amount} liters): "
-        @water_tank = gets.chomp.to_f
-        puts "In water tank is present: #{@water_tank} l"
+        self.water_tank = gets.chomp.to_f
+        puts "In water tank is present: #{self.water_tank} l"
         check_water_level # Repeat checking procedure
-      elsif @water_tank > @max_water_tank_amount
+      elsif self.water_tank > @max_water_tank_amount
         @is_ready = false
         puts  "Too much water in the water tank! Fill less, please!"
         print "Enter amount of water to drain (liters): "
         drained_water = gets.chomp.to_f.round(2)
-        @water_tank -= drained_water
-        puts "In water tank is present: #{@water_tank.round(2)} l"
+        self.water_tank -= drained_water
+        puts "In water tank is present: #{self.water_tank.round(2)} l"
         check_water_level # Repeat checking procedure
-      elsif @water_tank <= @max_water_tank_amount && @water_tank > @min_water_tank_amount
+      elsif self.water_tank <= @max_water_tank_amount && self.water_tank > @min_water_tank_amount
         puts "Water Tank - OK".rjust(50, '.')
         @is_ready = true
         return @is_ready
@@ -165,38 +165,38 @@ module Application
 
     def check_trash_level
       # Check Trash Can procedure
-      if @trash_can >= @max_trash_can_amount # The trash can is full - need to clean
+      if self.trash_can >= @max_trash_can_amount # The trash can is full - need to clean
         puts "Clean the trash can, please!".center(50, '!')
         print "Are you already empty the trash can? (Y/N): "
         user_cleaned = gets.chomp.downcase
         case user_cleaned
-        when 'y' then @trash_can = 0
+        when 'y' then self.trash_can = 0
         when 'n' then puts "You cannot continue. Clean it, please!".center(50, '!')
         end
         check_trash_level
-      elsif @trash_can >= @min_trash_can_amount # The trash can is empty
+      elsif self.trash_can >= @min_trash_can_amount # The trash can is empty
         puts "Trash Can - OK".rjust(50, '.')
-      elsif @trash_can < @min_trash_can_amount
-        @trash_can = 0
+      elsif self.trash_can < @min_trash_can_amount
+        self.trash_can = 0
       end
     end
 
     def check_beans_level
-      if @beans_can <= @min_beans_can_amount
+      if self.beans_can <= @min_beans_can_amount
         puts "A Beans Can is empty! Fill it, please!".center(50, '!')
         print "Fill the Can, please (#{@min_beans_can_amount} - #{@max_beans_can_amount} kilograms): "
         user_filed_beans = gets.chomp.downcase.to_f
-        @beans_can += user_filed_beans
-        puts "Current amount of beans is #{@beans_can.round(2)} kg."
+        self.beans_can += user_filed_beans
+        puts "Current amount of beans is #{self.beans_can.round(2)} kg."
         check_beans_level
-      elsif @beans_can > @max_beans_can_amount
+      elsif self.beans_can > @max_beans_can_amount
         puts "Too much of beans in the Beans Can!".center(50, '!')
         print "How much beans do you want to remove (kg)? "
         beans_removed = gets.chomp.to_f.round(2)
-        @beans_can -= beans_removed
-        puts "Current amount of beans is #{@beans_can.round(2)} kg."
+        self.beans_can -= beans_removed
+        puts "Current amount of beans is #{self.beans_can.round(2)} kg."
         check_beans_level
-      elsif @beans_can > @min_beans_can_amount && @beans_can <= @max_beans_can_amount
+      elsif self.beans_can > @min_beans_can_amount && self.beans_can <= @max_beans_can_amount
         puts "Beans Can - OK".rjust(50, '.')
       end
     end
@@ -255,9 +255,9 @@ module Application
         cup.is_full = true
         puts "Your coffee is ready! Take your cup, please.".rjust(50, ".")
         puts ""
-        @water_tank -= (@cup_volume / 100) # water consumption per cup of coffee
-        @trash_can += 1 # trash generation from one cup of coffee
-        @beans_can -= 0.5 # beans consumption per one cup of coffee
+        self.water_tank -= (@cup_volume / 100) # water consumption per cup of coffee
+        self.trash_can += 1 # trash generation from one cup of coffee
+        self.beans_can -= 0.5 # beans consumption per one cup of coffee
       elsif @chosen_drink == 'q'
         puts ""
       end
