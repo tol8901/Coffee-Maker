@@ -66,7 +66,7 @@ module Application
   end
 
   class CoffeeMaker
-    attr_accessor :state_object, :water_tank, :trash_can, :beans_can
+    attr_accessor :state_object, :water_tank, :trash_can, :beans_can, :cup
     # Amount of water in a water tank (liters)
     MIN_WATER_TANK_AMOUNT = 0 # liters
     MAX_WATER_TANK_AMOUNT = 2 # liters
@@ -97,9 +97,6 @@ module Application
       # Time of loading
       @loading_delay = self.class::DELAY_LOADING
 
-      # The volume of the cup for drink, ml
-      @cup_volume = 200 # ml
-
       # Object to store a state of the machine
       self.state_object = StateMachineOnOff.new
 
@@ -108,6 +105,9 @@ module Application
       self.water_tank = self.class::MIN_WATER_TANK_AMOUNT
       self.trash_can = self.class::MIN_TRASH_CAN_AMOUNT
       self.beans_can = self.class::MIN_BEANS_CAN_AMOUNT
+
+      # Cup initialization
+      self.cup = Cup.new
     end
 
     def switch_on
@@ -202,7 +202,9 @@ module Application
     end
 
     def user_select_drink
+      # Main workflow during making a drink
         select_drink
+        select_cup
         make_coffee
     end
 
@@ -217,6 +219,7 @@ module Application
         f: 'Cappuccino',
       }
 
+      # Selection drink process by User
       begin
         @chosen_drink = ""
         puts "Available drinks:"
@@ -228,7 +231,8 @@ module Application
 
         # Validation of the user input
         unless selected_drink.gsub(/[#{@available_drinks.keys}]/, '').empty?
-          puts "Invalid input! Select one of the items in the menu, please."
+          puts "Invalid input".center(50, '!')
+          puts "Select one of the items in the menu, please".center(50, '!')
         end
 
         @chosen_drink = "#{@available_drinks[selected_drink[0].to_sym]}"
@@ -236,13 +240,45 @@ module Application
       end while selected_drink != 'q'
     end
 
+    def select_cup
+      # Selection Cup process
+
+      # Available drinks list
+      @available_cup_volumes = {
+        a: 50,
+        b: 100,
+        c: 200,
+        d: 250,
+        e: 500,
+      }
+
+      # Selection cup process by User
+      begin
+        puts "Available cups:"
+        @available_cup_volumes.each do |key_volume, value_volume|
+          puts "#{key_volume}) #{value_volume} ml"
+        end
+
+        print "Select your cup, please: "
+        cup_volume_selected = gets.chomp.downcase
+
+        # Validation of the user input
+        unless cup_volume_selected.gsub(/[#{@available_cup_volumes.keys}]/, '').empty?
+          puts "Invalid input".center(50, '!')
+          puts "Select one of the items in the menu, please".center(50, '!')
+        end
+
+        self.cup.cup_volume(@available_cup_volumes[cup_volume_selected[0].to_sym])
+        break if self.cup.show_cup_volume != 0
+      end while cup_volume_selected != 'q'
+
+      puts "You selected a #{self.cup.show_cup_volume} ml cup"
+    end
+
     def make_coffee
     # Making coffee procedure
-      # Add cup
-      cup = Cup.new
-
       if @chosen_drink != 'q' # switch_on procedure was successful
-        puts "Preparing a drink: #{@chosen_drink} (#{@cup_volume} ml)".ljust(50, ".")
+        puts "Preparing a drink: #{@chosen_drink} (#{self.cup.show_cup_volume} ml)".ljust(50, ".")
         # Inform user about status of coffee preparing;
         puts "Heating of water".ljust(50, '.')
         sleep 1
@@ -252,11 +288,11 @@ module Application
         puts "Done".rjust(50, '.')
         puts "Flowing of water through grinded coffee beans".ljust(50, '.')
         sleep 1
-        cup.is_full = true
         puts "Your coffee is ready! Take your cup, please.".rjust(50, ".")
         puts ""
-        self.water_tank -= (@cup_volume / 100) # water consumption per cup of coffee
-        self.trash_can += 1 # trash generation from one cup of coffee
+        cup_in_liters = self.cup.show_cup_volume / 1000
+        self.water_tank -= cup_in_liters # water consumption per cup of coffee
+        self.trash_can += 0.5 # trash generation from one cup of coffee
         self.beans_can -= 0.5 # beans consumption per one cup of coffee
       elsif @chosen_drink == 'q'
         puts ""
@@ -307,11 +343,10 @@ module Application
   end
 
   class Cup
-    attr_accessor :volume, :is_full
+    attr_accessor :volume
+
     def initialize
-      @is_full = false
       @volume = 0
-      @size = 0.2 # liters
     end
 
     def cup_volume(volume)
@@ -320,10 +355,6 @@ module Application
 
     def show_cup_volume
       @volume
-    end
-
-    def fill_cup(is_full)
-      @is_full = is_full
     end
   end
 
